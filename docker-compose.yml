@@ -21,7 +21,7 @@ services:
   postgres_user:
     image: postgres:16
     environment:
-      POSTGERES_USER: postgres
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
     ports:
@@ -30,10 +30,10 @@ services:
       - ./postgres/user:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 5s # 5초 대기 후 실행
+      start_period: 30s # 30초 대기 후 실행
 
   product:
     build:
@@ -55,7 +55,7 @@ services:
   postgres_product:
     image: postgres:16
     environment:
-      POSTGERES_USER: postgres
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
     ports:
@@ -64,7 +64,45 @@ services:
       - ./postgres/product:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 5s # 5초 대기 후 실행
+      start_period: 30s # 30초 대기 후 실행
+
+  order:
+    build:
+      context: .
+      dockerfile: ./apps/order/Dockerfile
+      target: development
+    command: pnpm run start:dev order
+    depends_on:
+      mongo_order: 
+        condition: service_healthy
+    env_file:
+      - ./apps/order/.env
+    ports:
+      - '3003:3000'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules # : 없으면 볼륨 제외
+  
+  mongo_order:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+    ports:
+      - '6003:27017'
+    volumes:
+      - ./mongo/order:/data/lib
+    command: mongod --quiet --logpath /dev/null # 로그 자동 삭제
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s # 30초 대기 후 실행
+
+  
+
+      
