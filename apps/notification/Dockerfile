@@ -12,4 +12,4 @@ RUN pnpm i
 
 COPY . .
 
-CMD ["pnpm", "start:dev", "order"]
+CMD ["pnpm", "start:dev", "notification"]
