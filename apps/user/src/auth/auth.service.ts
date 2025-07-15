@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class AuthService {
@@ -86,6 +87,45 @@ export class AuthService {
 
         const [email, password] = tokenSplit;
         return { email, password };
+    }
+
+    async parseBearerToken(rawToken: string, isRefreshToken: boolean){
+        const bearerSplit = rawToken.split(' ');
+
+        if( bearerSplit.length !== 2 ){
+            throw new RpcException('토큰 포맷이 잘못됐습니다.');
+        }
+
+        const [bearer, token] = bearerSplit;
+        if( bearer.toLocaleLowerCase() !== 'bearer' ){
+            throw new RpcException('bearer 토큰 포맷이 잘못됐습니다.');
+        }
+
+        try {
+            const payload = await this.jwtService.verifyAsync(
+                token,
+                {
+                    secret: this.configService.getOrThrow<string>(
+                        isRefreshToken ? 'REFRESH_TOKEN_SECRET' : 'ACCESS_TOKEN_SECRET'
+                    )
+                }
+            );
+
+            if( isRefreshToken ){
+                if(payload.type !== 'refresh'){
+                    throw new RpcException('Refresh 토큰을 입력해주세요.');
+                }
+            } else {
+                if(payload.type !== 'access'){
+                    throw new RpcException('Access 토큰을 입력해주세요.');
+                }
+            }
+
+            return payload;
+        } catch (error) {
+            console.log(error);
+            throw new RpcException('토큰이 만료되었습니다.');
+        }
     }
 
     async issueToken(user: any, isRefreshToken: boolean){

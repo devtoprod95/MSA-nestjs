@@ -94,7 +94,7 @@ services:
     ports:
       - '6003:27017'
     volumes:
-      - ./mongo/order:/data/lib
+      - ./mongo/order:/data/db
     command: mongod --quiet --logpath /dev/null # 로그 자동 삭제
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
@@ -162,7 +162,7 @@ services:
     ports:
       - '6005:27017'
     volumes:
-      - ./mongo/notification:/data/lib
+      - ./mongo/notification:/data/db
     command: mongod --quiet --logpath /dev/null # 로그 자동 삭제
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet

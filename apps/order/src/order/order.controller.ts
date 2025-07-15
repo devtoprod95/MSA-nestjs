@@ -8,7 +8,7 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
-  @UsePipes(ValidationPipe)
+  // @UsePipes(ValidationPipe)
   async createOrder(@Authorization() token: string, @Body() dto: CreateOrderDto){
     return this.orderService.createOrder(token, dto);
   }
