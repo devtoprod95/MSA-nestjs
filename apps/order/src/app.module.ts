@@ -4,7 +4,7 @@ import { ConfigModule, ConfigService, } from "@nestjs/config";
 import * as Joi from "joi";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ClientsModule, Transport } from "@nestjs/microservices";
-import { USER_SERVICE } from "@app/common";
+import { PRODUCT_SERVICE, USER_SERVICE } from "@app/common";
 
 @Module({
     imports: [
@@ -14,6 +14,8 @@ import { USER_SERVICE } from "@app/common";
                 HTTP_PORT: Joi.number().required(),
                 USER_HOST: Joi.string().required(),
                 USER_TCP_PORT: Joi.number().required(),
+                PRODUCT_HOST: Joi.string().required(),
+                PRODUCT_TCP_PORT: Joi.number().required(),
                 DB_URL: Joi.string().required(),
             })
         }),
@@ -32,6 +34,17 @@ import { USER_SERVICE } from "@app/common";
                         options: {
                             host: configService.getOrThrow<string>('USER_HOST'),
                             port: configService.getOrThrow<number>('USER_TCP_PORT'),
+                        }
+                    }),
+                    inject: [ConfigService]
+                },
+                {
+                    name: PRODUCT_SERVICE,
+                    useFactory: (configService: ConfigService) => ({
+                        transport: Transport.TCP,
+                        options: {
+                            host: configService.getOrThrow<string>('PRODUCT_HOST'),
+                            port: configService.getOrThrow<number>('PRODUCT_TCP_PORT'),
                         }
                     }),
                     inject: [ConfigService]
