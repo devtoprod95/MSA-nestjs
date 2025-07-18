@@ -116,7 +116,7 @@ export class OrderService {
 
   private async processPayment(orderId: string, payment: PaymentDto, userEmail: string){
     try {
-      const pResp = await lastValueFrom(this.paymentService.send({cmd: 'make_payment'}, {userEmail, ...payment}));
+      const pResp = await lastValueFrom(this.paymentService.send({cmd: 'make_payment'}, {userEmail, ...payment, orderId}));
 
       if( pResp.status === 'error' ){
         throw new PaymentCancelledException(pResp);
