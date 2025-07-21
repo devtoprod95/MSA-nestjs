@@ -2,15 +2,8 @@ import { IsArray, IsNotEmpty, IsString, ValidateNested } from "class-validator";
 import { AddressDto } from "./address.dto";
 import { Type } from "class-transformer";
 import { PaymentDto } from "./payment.dto";
-import { UserMeta, UserPayloadDto } from "@app/common";
 
-export class CreateOrderDto implements UserMeta{
-    @ValidateNested()
-    @IsNotEmpty()
-    meta: {
-        user: UserPayloadDto;
-    };
-
+export class CreateOrderDto{
     @IsArray()
     @IsString({each: true})
     @IsNotEmpty({each: true})

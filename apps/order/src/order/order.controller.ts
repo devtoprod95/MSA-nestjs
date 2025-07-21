@@ -1,4 +1,4 @@
-import { Controller, ValidationPipe, Post, Body, UsePipes, UseInterceptors } from '@nestjs/common';
+import { Controller, UseInterceptors } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
@@ -10,17 +10,16 @@ import { OrderStatus } from './entity/order.entity';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  // @Post()
-  // @UsePipes(ValidationPipe)
-  // async createOrder(@Authorization() token: string, @Body() dto: CreateOrderDto){
-  //   return this.orderService.createOrder(token, dto);
-  // }
+  @MessagePattern({cmd: 'create_order'})
+  @UseInterceptors(RpcInterceptor)
+  async createOrder(@Payload() dto: CreateOrderDto){
+    return await this.orderService.createOrder(dto);
+  }
 
   @EventPattern({cmd: 'delivery_started'})
-  @UsePipes(ValidationPipe)
   @UseInterceptors(RpcInterceptor)
   async deliveryStarted(@Payload() payload: DeliveryStartedDto){
-    await this.orderService.changeOrderStatus(payload.id, OrderStatus.deliveryStarted);
+    return await this.orderService.changeOrderStatus(payload.id, OrderStatus.deliveryStarted);
   }
 
 }

@@ -28,11 +28,11 @@ export class OrderService {
   }
 
 
-  async createOrder(token: string, dto: CreateOrderDto) {
-    const {productIds, address, payment } = dto;
+  async createOrder(dto: CreateOrderDto) {
+    const {productIds, address, payment, meta } = dto;
 
     // 1) 사용자 정보 가져오기
-    const user = await this.getUserFromToken(token);
+    const user = await this.getUserFromToken(meta.user.sub);
 
     // 2) 상품 정보 가져오기
     const products = await this.getProductsByIds(productIds); 
@@ -54,16 +54,16 @@ export class OrderService {
     return this.orderRepository.findById(order._id);
   }
 
-  private async getUserFromToken(token: string){
+  private async getUserFromToken(userId: string){
     // 1) User MS : JWT 토큰 검증
-    const tResp = await lastValueFrom(this.userSerivce.send({cmd: 'parse_bearer_token'}, {token}));
+    // const tResp = await lastValueFrom(this.userSerivce.send({cmd: 'parse_bearer_token'}, {token}));
 
-    if( tResp.status === 'error' ){
-      throw new PaymentCancelledException(tResp);
-    }
+    // if( tResp.status === 'error' ){
+    //   throw new PaymentCancelledException(tResp);
+    // }
 
-    // 2) User MS : 사용자 정보 가져오기
-    const userId = tResp.data.sub;
+    // // 2) User MS : 사용자 정보 가져오기
+    // const userId = tResp.data.sub;
     const uResp = await lastValueFrom(this.userSerivce.send({cmd: 'get_user_info'}, {userId}));
     if( uResp.status === 'error' ){
       throw new PaymentCancelledException(uResp);
