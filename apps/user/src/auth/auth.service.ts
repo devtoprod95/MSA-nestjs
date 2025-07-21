@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import { RegisterDto } from './dto/register-dto';
+import { RegisterDto } from './dto/register.dto';
 import { Repository } from 'typeorm';
 import { User } from '../user/entity/user.entity';
 import * as bcrypt from 'bcrypt';
@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RpcException } from '@nestjs/microservices';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -21,8 +22,8 @@ export class AuthService {
 
     }
 
-    async register(rawToken: string, registerDto: RegisterDto){
-        const {email, password} = this.parseBasicToken(rawToken);
+    async register(registerDto: RegisterDto){
+        const {email, password} = this.parseBasicToken(registerDto.token);
 
         return this.userService.create({
             ...registerDto,
@@ -31,7 +32,9 @@ export class AuthService {
         });
     }
 
-    async login(rawToken: string){
+    async login(loginDto: LoginDto){
+        const rawToken = loginDto.token;
+
         const {email, password} = this.parseBasicToken(rawToken);
 
         const user = await this.authenticate(email, password);

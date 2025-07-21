@@ -12,9 +12,9 @@ async function bootstrap() {
       port: parseInt(process.env.TCP_PORT) || 3001,
     }
   });
-
+ 
   await app.startAllMicroservices();
 
-  await app.listen(process.env.HTTP_PORT ?? 3000);
+  // await app.listen(process.env.HTTP_PORT ?? 3000);
 }
 bootstrap();

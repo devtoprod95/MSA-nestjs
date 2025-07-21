@@ -4,7 +4,7 @@ services:
   gateway:
     build:
       context: .
-      dockerfile: ./apps/user/Dockerfile
+      dockerfile: ./apps/gateway/Dockerfile
       target: development
     command: pnpm run start:dev gateway
     env_file:
