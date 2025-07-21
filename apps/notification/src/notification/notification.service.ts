@@ -2,14 +2,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import { SendPaymentNotificationDto } from './dto/send-payment-notification.dto';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { NotificationStatus } from './entity/notification.entity';
+import { Notification, NotificationStatus } from './entity/notification.entity';
 import { ORDER_SERVICE } from '@app/common';
 import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class NotificationService {
   constructor(
-    @InjectModel(NotificationService.name)
+    @InjectModel(Notification.name)
     private readonly notificationRepository: Model<Notification>,
     @Inject(ORDER_SERVICE)
     private readonly orderSerivce: ClientProxy,
@@ -28,7 +28,7 @@ export class NotificationService {
   }
 
   sendDeliveryStartedMessage(orderId: string){
-    this.orderSerivce.send({ cmd: 'delivery_started'}, {id: orderId})  ;
+    this.orderSerivce.emit({ cmd: 'delivery_started'}, {id: orderId});
   }
 
   async updateNotificationStatus(id: string, status: NotificationStatus){

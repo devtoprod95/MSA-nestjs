@@ -144,4 +144,8 @@ export class OrderService {
       throw error;
     }
   }
+
+  async changeOrderStatus(orderId: string, status: OrderStatus){
+    return await this.orderRepository.findByIdAndUpdate(orderId, {status});
+  }
 }

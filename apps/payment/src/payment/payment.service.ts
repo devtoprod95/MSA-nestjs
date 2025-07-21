@@ -4,6 +4,7 @@ import { Payment, PaymentStatus } from './entity/payment.entity';
 import { Repository } from 'typeorm';
 import { MakePaymentDto } from './dto/make-payment.dto';
 import { NOTIFICATION_SERVICE } from '@app/common';
+import { lastValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
@@ -33,13 +34,15 @@ export class PaymentService {
       return await this.paymentRepository.findOneBy({id: paymentId});
     } catch (error) {
       if( paymentId ){
-        await this.updatePaymentStatus(paymentId, PaymentStatus.approved);
+        await this.updatePaymentStatus(paymentId, PaymentStatus.rejected);
       }
+
+      throw error;
     }
   }
 
   async processPayment(){
-    await new Promise((resoleve) => setTimeout(resoleve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   async updatePaymentStatus(id: string, paymentStatus: PaymentStatus){
@@ -54,9 +57,9 @@ export class PaymentService {
   }
 
   async sendNotification(orderId: string, userEmail: string){
-    const resp = await this.notificationService.send({ cmd: 'send_payment_notification' }, {
+    const resp = await lastValueFrom(this.notificationService.send({cmd: 'send_payment_notification'}, {
       to: userEmail,
       orderId
-    });
+    }));
   }
 }

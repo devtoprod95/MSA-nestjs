@@ -2,9 +2,10 @@ import { Controller, ValidationPipe, Post, Body, UsePipes, UseInterceptors } fro
 import { OrderService } from './order.service';
 import { Authorization } from 'apps/user/src/auth/decorator/authorization.decorator';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { RpcInterceptor } from '@app/common';
 import { DeliveryStartedDto } from './dto/delivery-started.dto';
+import { OrderStatus } from './entity/order.entity';
 
 @Controller('order')
 export class OrderController {
@@ -16,11 +17,11 @@ export class OrderController {
     return this.orderService.createOrder(token, dto);
   }
 
-  @MessagePattern({cmd: 'delivery_started'})
+  @EventPattern({cmd: 'delivery_started'})
   @UsePipes(ValidationPipe)
   @UseInterceptors(RpcInterceptor)
   async deliveryStarted(@Payload() payload: DeliveryStartedDto){
-    
+    await this.orderService.changeOrderStatus(payload.id, OrderStatus.deliveryStarted);
   }
 
 }
