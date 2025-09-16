@@ -3,8 +3,8 @@ syntax = "proto3";
 package product;
 
 service ProductService {
-    rpc CreateSamples(CreateSamplesRequest) returns (CreateSamplesResponse)
-    rpc GetProductInfo(GetProductInfoRequest) returns (GetProductInfoResponse)
+    rpc CreateSamples(CreateSamplesRequest) returns (CreateSamplesResponse);
+    rpc GetProductInfo(GetProductInfoRequest) returns (GetProductInfoResponse);
 }
 
 message CreateSamplesRequest {
