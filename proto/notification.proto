@@ -7,7 +7,7 @@ service NotificationService {
 }
 
 message SendPaymentNotificationRequest {
-    string id = 1;
+    string to = 1;
     string orderId = 2;
 }
 

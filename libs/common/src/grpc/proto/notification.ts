@@ -12,7 +12,7 @@ import { Observable } from "rxjs";
 export const protobufPackage = "notification";
 
 export interface SendPaymentNotificationRequest {
-  id: string;
+  to: string;
   orderId: string;
 }
 
