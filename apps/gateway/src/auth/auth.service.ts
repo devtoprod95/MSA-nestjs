@@ -1,29 +1,32 @@
-import { USER_SERVICE } from '@app/common';
-import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { USER_SERVICE, UserMicroservice } from '@app/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
+    userService: UserMicroservice.AuthServiceClient;
+
     constructor(
         @Inject(USER_SERVICE)
-        private readonly userMicroService: ClientProxy,
+        private readonly userMicroService: ClientGrpc,
     ){}
 
-    async register(token: string, registerDto: RegisterDto){
-        return await lastValueFrom(this.userMicroService.send({ cmd: 'register'}, {
-                ...registerDto,
-                token,
-            }));
-
+    onModuleInit() {
+        this.userService = this.userMicroService.getService<UserMicroservice.AuthServiceClient>('AuthService');
     }
 
-    async login(token: string){
-        const result = await lastValueFrom(this.userMicroService.send({ cmd: 'login'}, {
+    register(token: string, registerDto: RegisterDto){
+        return lastValueFrom(this.userService.registerUser({
+            ...registerDto,
             token,
         }));
+    }
 
-        return result?.data;
+    login(token: string){
+        return lastValueFrom(this.userService.loginUser({
+            token,
+        }));
     }
 }
