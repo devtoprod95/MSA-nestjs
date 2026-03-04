@@ -22,6 +22,7 @@ export interface CreateOrderRequest {
   meta: CreateOrderRequest_Meta | undefined;
   productIds: string[];
   address: CreateOrderRequest_Address | undefined;
+  payment: CreateOrderRequest_Payment | undefined;
 }
 
 export interface CreateOrderRequest_Meta {
@@ -35,7 +36,7 @@ export interface CreateOrderRequest_Meta_UserPayload {
 export interface CreateOrderRequest_Address {
   name: string;
   street: string;
-  ciry: string;
+  city: string;
   postalCode: string;
   country: string;
 }
@@ -46,7 +47,7 @@ export interface CreateOrderRequest_Payment {
   cardNumber: string;
   expiryYear: string;
   expiryMonth: string;
-  birthOrRegistation: string;
+  birthOrRegistration: string;
   passwordTwoDigits: string;
   amount: number;
 }
@@ -74,7 +75,7 @@ export interface CreateOrderResponse_Product {
 export interface CreateOrderResponse_DeliveryAddress {
   name: string;
   street: string;
-  ciry: string;
+  city: string;
   postalCode: string;
   country: string;
 }

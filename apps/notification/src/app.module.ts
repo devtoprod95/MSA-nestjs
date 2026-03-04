@@ -28,9 +28,9 @@ import { join } from "path";
           useFactory: (configService: ConfigService) => ({
               transport: Transport.GRPC,
               options: {
-                  package: OrderMicroservice.protobufPackage,
-                  protoPath: join(process.cwd(), 'proto/order.proto'),
-                  url: configService.getOrThrow('GRPC_URL')
+                package: OrderMicroservice.protobufPackage,
+                protoPath: join(process.cwd(), 'proto/order.proto'),
+                url: configService.getOrThrow('ORDER_GRPC_URL')
               }
           }),
           inject: [ConfigService]

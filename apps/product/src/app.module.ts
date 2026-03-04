@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { ProductModule } from "../product/product.module";
+import { ProductModule } from "./product/product.module";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import * as Joi from 'joi';

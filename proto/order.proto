@@ -27,7 +27,7 @@ message CreateOrderRequest {
     message Address { 
         string name = 1;
         string street = 2;
-        string ciry = 3;
+        string city = 3;
         string postalCode = 4;
         string country = 5;
     }
@@ -38,7 +38,7 @@ message CreateOrderRequest {
         string cardNumber = 3;
         string expiryYear = 4;
         string expiryMonth = 5;
-        string birthOrRegistation = 6;
+        string birthOrRegistration = 6;
         string passwordTwoDigits = 7;
         double amount = 8;
     }
@@ -46,6 +46,7 @@ message CreateOrderRequest {
     Meta meta = 1;
     repeated string productIds = 2;
     Address address = 3;
+    Payment payment = 4;
 }
 
 message CreateOrderResponse {
@@ -64,7 +65,7 @@ message CreateOrderResponse {
     message DeliveryAddress {
         string name = 1;
         string street = 2;
-        string ciry = 3;
+        string city = 3;
         string postalCode = 4;
         string country = 5;
     }

@@ -7,10 +7,10 @@ import { NotificationMicroservice } from '@app/common';
 export class NotificationController implements NotificationMicroservice.NotificationServiceController {
   constructor(private readonly notificationService: NotificationService) {}
 
-  async sendPaymentNotification(payload: NotificationMicroservice.SendPaymentNotificationRequest){
+  async sendPaymentNotification(request: NotificationMicroservice.SendPaymentNotificationRequest){
     const resp = (await this.notificationService.sendPaymentNotification({
-      ...payload,
-      to: payload.id
+      ...request,
+      to: request.id
     })).toJSON();
 
     return {

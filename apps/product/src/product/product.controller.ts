@@ -1,7 +1,5 @@
 import { Controller } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { Payload } from '@nestjs/microservices';
-import { GetProductsInfo } from './dto/get-products-info.dto';
 import { ProductMicroservice } from '@app/common';
 
 @Controller('product')
@@ -16,8 +14,8 @@ export class ProductController implements ProductMicroservice.ProductServiceCont
     }
   }
 
-  async getProductInfo(@Payload() data: GetProductsInfo){
-    const resp = await this.productService.getProductsInfo(data.productIds);
+  async getProductInfo(request: ProductMicroservice.GetProductInfoRequest){
+    const resp = await this.productService.getProductsInfo(request.productIds);
 
     return {
       products: resp
