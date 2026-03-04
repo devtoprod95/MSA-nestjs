@@ -31,7 +31,7 @@ export class Payment {
         enum: PaymentMethod,
         default: PaymentMethod.creditCard
     })
-    paymentdMethod: PaymentMethod;
+    paymentMethod: PaymentMethod;
 
     @Column()
     cardNumber: string;
