@@ -2,11 +2,12 @@ import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { OrderModule } from './order/order.module';
 import { ProductModule } from './product/product.module';
 import { AuthModule } from './auth/auth.module';
-import { USER_SERVICE, PRODUCT_SERVICE, PAYMENT_SERVICE, ORDER_SERVICE } from "@app/common";
+import { USER_SERVICE, PRODUCT_SERVICE, ORDER_SERVICE, UserMicroservice, ProductMicroservice, OrderMicroservice } from "@app/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ClientsModule, Transport } from "@nestjs/microservices";
 import * as Joi from 'joi';
 import { BearerTokenMiddleware } from "./auth/middleware/bearer-token.middleware";
+import { join } from "path";
 
 @Module({
     imports: [OrderModule, ProductModule, AuthModule,
@@ -27,13 +28,11 @@ import { BearerTokenMiddleware } from "./auth/middleware/bearer-token.middleware
                 {
                     name: USER_SERVICE,
                     useFactory: (configService: ConfigService) => ({
-                        transport: Transport.RMQ,
+                        transport: Transport.GRPC,
                         options: {
-                            urls: ['amqp://rabbitmq:5672'],
-                            queue: 'user_queue',
-                            queueOptions: {
-                                durable: false,
-                            }
+                            package: UserMicroservice.protobufPackage,
+                            protoPath: join(process.cwd(), 'proto/user.proto'),
+                            url: configService.getOrThrow('USER_GRPC_URL')
                         }
                     }),
                     inject: [ConfigService]
@@ -41,13 +40,11 @@ import { BearerTokenMiddleware } from "./auth/middleware/bearer-token.middleware
                 {
                     name: PRODUCT_SERVICE,
                     useFactory: (configService: ConfigService) => ({
-                        transport: Transport.RMQ,
+                        transport: Transport.GRPC,
                         options: {
-                            urls: ['amqp://rabbitmq:5672'],
-                            queue: 'product_queue',
-                            queueOptions: {
-                                durable: false,
-                            }
+                            package: ProductMicroservice.protobufPackage,
+                            protoPath: join(process.cwd(), 'proto/product.proto'),
+                            url: configService.getOrThrow('PRODUCT_GRPC_URL')
                         }
                     }),
                     inject: [ConfigService]
@@ -55,13 +52,11 @@ import { BearerTokenMiddleware } from "./auth/middleware/bearer-token.middleware
                 {
                     name: ORDER_SERVICE,
                     useFactory: (configService: ConfigService) => ({
-                        transport: Transport.RMQ,
+                        transport: Transport.GRPC,
                         options: {
-                            urls: ['amqp://rabbitmq:5672'],
-                            queue: 'order_queue',
-                            queueOptions: {
-                                durable: false,
-                            }
+                            package: OrderMicroservice.protobufPackage,
+                            protoPath: join(process.cwd(), 'proto/order.proto'),
+                            url: configService.getOrThrow('ORDER_GRPC_URL')
                         }
                     }),
                     inject: [ConfigService]
