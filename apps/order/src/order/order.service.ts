@@ -1,8 +1,8 @@
-import { Inject,Injectable } from '@nestjs/common';
+import { Inject,Injectable, OnModuleInit } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
-import { PAYMENT_SERVICE, PRODUCT_SERVICE, USER_SERVICE } from '@app/common';
+import { PAYMENT_SERVICE, PaymentMicroservice, PRODUCT_SERVICE, ProductMicroservice, USER_SERVICE, UserMicroservice } from '@app/common';
 import { PaymentCancelledException } from './exception/payment-cancelled.exception';
 import { Product } from './entity/product.entity';
 import { Customer } from './entity/customer.entity';
@@ -13,20 +13,29 @@ import { Order, OrderStatus } from './entity/order.entity';
 import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
-export class OrderService {
+export class OrderService implements OnModuleInit{
+  userService: UserMicroservice.UserServiceClient;
+  productService: ProductMicroservice.ProductServiceClient;
+  paymentService: PaymentMicroservice.PaymentServiceClient;
+
   constructor(
     @Inject(USER_SERVICE)
-    private readonly userSerivce: ClientProxy,
+    private readonly userMicroservice: ClientGrpc,
     @Inject(PRODUCT_SERVICE)
-    private readonly productService: ClientProxy,
+    private readonly productMicroservice: ClientGrpc,
     @Inject(PAYMENT_SERVICE)
-    private readonly paymentService: ClientProxy,
+    private readonly paymentMicroservice: ClientGrpc,
     @InjectModel(Order.name)
     private readonly orderRepository: Model<Order>,
   ){
 
   }
 
+  onModuleInit() {
+    this.userService = this.userMicroservice.getService<UserMicroservice.UserServiceClient>('UserService');
+    this.productService = this.productMicroservice.getService<ProductMicroservice.ProductServiceClient>('ProductService');
+    this.paymentService = this.paymentMicroservice.getService<PaymentMicroservice.PaymentServiceClient>('PaymentService');
+  }
 
   async createOrder(dto: CreateOrderDto) {
     const {productIds, address, payment, meta } = dto;
@@ -64,23 +73,16 @@ export class OrderService {
 
     // // 2) User MS : 사용자 정보 가져오기
     // const userId = tResp.data.sub;
-    const uResp = await lastValueFrom(this.userSerivce.send({cmd: 'get_user_info'}, {userId}));
-    if( uResp.status === 'error' ){
-      throw new PaymentCancelledException(uResp);
-    }
+    const uResp = await lastValueFrom(this.userService.getUserInfo({userId}));
 
-    return uResp.data;
+    return uResp;
   }
 
   private async getProductsByIds(productIds: string[]): Promise<Product[]>{
-    const resp = await lastValueFrom(this.productService.send({cmd: 'get_products_info'}, {productIds}));
-
-    if( resp.status === 'error' ){
-      throw new PaymentCancelledException('상품 정보가 잘못되었습니다.');
-    }
+    const resp = await lastValueFrom(this.productService.getProductInfo({productIds}));
 
     // [Product, Product] => product.price + product.price 가 동일한지 체크
-    return resp.data.map((product) => ({
+    return resp.products.map((product) => ({
       productId: product.id,
       name     : product.name,
       price    : product.price,
@@ -116,17 +118,13 @@ export class OrderService {
 
   private async processPayment(orderId: string, payment: PaymentDto, userEmail: string){
     try {
-      const pResp = await lastValueFrom(this.paymentService.send({cmd: 'make_payment'}, {userEmail, ...payment, orderId}));
+      const pResp = await lastValueFrom(this.paymentService.makePayment({userEmail, ...payment, orderId}));
 
-      if( pResp.status === 'error' ){
-        throw new PaymentCancelledException(pResp);
-      }
-
-      const isPaid = pResp.data.paymentStatus === 'Approved';
+      const isPaid = pResp.paymentStatus === 'Approved';
       const orderStatus = isPaid ? OrderStatus.paymentProcessed : OrderStatus.paymentFailed;
       
       if( orderStatus !== OrderStatus.paymentProcessed ){
-        throw new PaymentCancelledException(pResp.error);
+        throw new PaymentCancelledException(pResp);
       }
 
       await this.orderRepository.findByIdAndUpdate(orderId, {
