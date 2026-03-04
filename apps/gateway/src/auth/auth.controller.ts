@@ -11,7 +11,7 @@ export class AuthController {
   registerUser(@Authorization() token: string, @Body() registerDto: RegisterDto){
     if(token === null){
       throw new UnauthorizedException('토큰을 입력해주세요.');
-    }
+    } 
 
     return this.authService.register(token, registerDto);
   }

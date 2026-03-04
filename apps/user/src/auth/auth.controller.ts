@@ -1,8 +1,11 @@
-import { Controller, UnauthorizedException } from '@nestjs/common';
+import { Controller, UnauthorizedException, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserMicroservice } from '@app/common';
+import { LoggingInterceptor } from '@app/common/interceptor/logging.interceptor';
 
 @Controller('auth')
+@UseInterceptors(LoggingInterceptor)
+@UserMicroservice.AuthServiceControllerMethods()
 export class AuthController implements UserMicroservice.AuthServiceController {
   constructor(private readonly authService: AuthService) {}
 

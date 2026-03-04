@@ -2,6 +2,7 @@ version: '3.1'
 
 services:
   gateway:
+    restart: always # 추가
     build:
       context: .
       dockerfile: ./apps/gateway/Dockerfile
@@ -16,6 +17,7 @@ services:
       - /usr/src/app/node_modules # : 없으면 볼륨 제외
 
   user:
+    restart: always # 추가
     build:
       context: .
       dockerfile: ./apps/user/Dockerfile
@@ -50,6 +52,7 @@ services:
       start_period: 30s # 30초 대기 후 실행
 
   product:
+    restart: always # 추가
     build:
       context: .
       dockerfile: ./apps/product/Dockerfile
@@ -84,6 +87,7 @@ services:
       start_period: 30s # 30초 대기 후 실행
 
   order:
+    restart: always # 추가
     build:
       context: .
       dockerfile: ./apps/order/Dockerfile
@@ -118,6 +122,7 @@ services:
       start_period: 30s # 30초 대기 후 실행
 
   payment:
+    restart: always # 추가
     build:
       context: .
       dockerfile: ./apps/payment/Dockerfile
@@ -152,6 +157,7 @@ services:
       start_period: 30s # 30초 대기 후 실행
 
   notification:
+    restart: always # 추가
     build:
       context: .
       dockerfile: ./apps/notification/Dockerfile
@@ -185,8 +191,8 @@ services:
       retries: 10
       start_period: 30s # 30초 대기 후 실행
   
-  rabbitmq:
-    image: rabbitmq:4
+  # rabbitmq:
+  #   image: rabbitmq:4
 
   # redis:
   #   image: redis:7

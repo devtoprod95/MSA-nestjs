@@ -16,7 +16,6 @@ export class OrderService implements OnModuleInit {
         this.orderService = this.orderMicroService.getService<OrderMicroservice.OrderServiceClient>('OrderService');
     }
 
-
     async createOrder(createOrderDto: CreateOrderDto, userPayload: UserPayloadDto){
         return await lastValueFrom(this.orderService.createOrder({
             ...createOrderDto,

@@ -1,10 +1,13 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseInterceptors } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { OrderMicroservice } from '@app/common';
 import { OrderStatus } from './entity/order.entity';
 import { PaymentMethod } from './entity/payment.entity';
+import { LoggingInterceptor } from '@app/common/interceptor/logging.interceptor';
 
 @Controller('order')
+@UseInterceptors(LoggingInterceptor)
+@OrderMicroservice.OrderServiceControllerMethods()
 export class OrderController implements OrderMicroservice.OrderServiceController {
   constructor(private readonly orderService: OrderService) {}
 
