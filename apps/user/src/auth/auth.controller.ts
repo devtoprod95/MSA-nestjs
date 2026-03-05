@@ -1,11 +1,12 @@
 import { Controller, UnauthorizedException, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UserMicroservice } from '@app/common';
+import { GrpcInterceptor, UserMicroservice } from '@app/common';
 import { LoggingInterceptor } from '@app/common/interceptor/logging.interceptor';
 import { Metadata } from '@grpc/grpc-js';
 
 @Controller('auth')
 @UseInterceptors(LoggingInterceptor)
+@UseInterceptors(GrpcInterceptor)
 @UserMicroservice.AuthServiceControllerMethods()
 export class AuthController implements UserMicroservice.AuthServiceController {
   constructor(private readonly authService: AuthService) {}
@@ -24,8 +25,6 @@ export class AuthController implements UserMicroservice.AuthServiceController {
   }
 
   loginUser(request: UserMicroservice.LoginUserRequest, metadata: Metadata){
-    console.log(metadata);
-    
     const { token } = request;
     if( token === null ){
       throw new UnauthorizedException('토큰을 입력해주세요.');

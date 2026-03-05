@@ -1,9 +1,10 @@
 import { Controller, UseInterceptors } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserMicroservice } from '@app/common';
+import { GrpcInterceptor, UserMicroservice } from '@app/common';
 import { LoggingInterceptor } from '@app/common/interceptor/logging.interceptor';
 
 @Controller()
+@UseInterceptors(GrpcInterceptor)
 @UseInterceptors(LoggingInterceptor)
 @UserMicroservice.UserServiceControllerMethods()
 export class UserController implements UserMicroservice.UserServiceController {

@@ -2,13 +2,12 @@ import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { OrderModule } from './order/order.module';
 import { ProductModule } from './product/product.module';
 import { AuthModule } from './auth/auth.module';
-import { USER_SERVICE, PRODUCT_SERVICE, ORDER_SERVICE, UserMicroservice, ProductMicroservice, OrderMicroservice } from "@app/common";
+import { USER_SERVICE, PRODUCT_SERVICE, ORDER_SERVICE, UserMicroservice, ProductMicroservice, OrderMicroservice, traceInterceptor } from "@app/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ClientsModule, Transport } from "@nestjs/microservices";
 import * as Joi from 'joi';
 import { BearerTokenMiddleware } from "./auth/middleware/bearer-token.middleware";
 import { join } from "path";
-import { traceInterceptor } from "@app/common/grpc/interceptor/trace.interceptor";
 
 @Module({
     imports: [OrderModule, ProductModule, AuthModule,
